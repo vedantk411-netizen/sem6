@@ -1,0 +1,357 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #f1c40f; /* Gold/Yellow */
+    --primary-dark: #d4a617;
+    --bg-dark: #0f0f0f;
+    --bg-panel: #1a1a1a;
+    --bg-light: #252525;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+    --font-main: 'Poppins', sans-serif;
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    position: relative;
+    transition: var(--transition);
+}
+
+a:hover {
+    text-shadow: 0 0 12px var(--primary-color);
+}
+
+/* --- Layout Containers --- */
+.container, .auth-wrapper, .login-container {
+    width: 100%;
+    max-width: 450px;
+    margin: 5vh auto;
+    padding: 3rem;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+}
+
+/* --- Role Switcher --- */
+.role-switcher, .role-switch {
+    display: flex;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 2.5rem;
+    gap: 4px;
+}
+
+.role-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 700;
+    font-family: var(--font-main);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: var(--transition);
+    border-radius: 10px;
+}
+
+.role-btn.active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+}
+
+/* --- Forms --- */
+.form-group, .input-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 0.7rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.form-select {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    outline: none;
+    transition: var(--transition);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+input::placeholder {
+    color: var(--text-muted);
+}
+
+input:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.2);
+}
+
+button[type="submit"], .btn-primary, .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: #000;
+    border: none;
+    font-family: var(--font-main);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: var(--transition);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2);
+}
+
+button[type="submit"]:hover, .btn-primary:hover, .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(241, 196, 15, 0.4);
+}
+
+/* --- Dashboard & Workspace --- */
+.dashboard-container, #poses-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8rem 2rem 4rem;
+}
+
+#workspace-title, .section-header h2 {
+    text-align: center;
+    font-size: 3rem;
+    margin: 2rem 0;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--text-main) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Grid Layout */
+#poses-container, .shoot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+}
+
+/* Cards */
+.card, .shoot-card {
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.card:hover, .shoot-card:hover {
+    transform: translateY(-12px);
+    border-color: var(--primary-color);
+    box-shadow: 0 20px 50px rgba(241, 196, 15, 0.25);
+    background: rgba(241, 196, 15, 0.08);
+}
+
+.pose-img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: var(--transition);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.card:hover .pose-img {
+    filter: grayscale(0%);
+}
+
+.card-footer, .shoot-card p {
+    padding: 1rem 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.card h3, .shoot-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Rules */
+.rule-card {
+    background: rgba(241, 196, 15, 0.1);
+    border-left: 3px solid var(--primary-color);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+    border-radius: 8px;
+}
+
+/* --- Modal --- */
+#login-modal, .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+#login-modal.active, .modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(30, 30, 30, 0.95);
+    padding: 3rem;
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    border-radius: 16px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Navbar --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(15, 15, 15, 0.95) 0%, rgba(15, 15, 15, 0.7) 100%);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.nav-logo {
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--text-main) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-btn, .logout-btn {
+    padding: 10px 20px;
+    border: 1.5px solid var(--primary-color);
+    background: transparent;
+    color: var(--primary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-btn:hover, .logout-btn:hover {
+    background: var(--primary-color);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-container {
+        padding: 6rem 1.5rem 2rem;
+    }
+    
+    #workspace-title, .section-header h2 {
+        font-size: 2rem;
+    }
+    
+    .shoot-grid {
+        grid-template-columns: 1fr;
+    }
+}

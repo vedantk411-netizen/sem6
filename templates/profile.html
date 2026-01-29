@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f1c40f;
+            --panel: rgba(255,255,255,0.04);
+            --bg: #0f0f0f;
+            --muted: #aaaaaa;
+            --glass-blur: 8px;
+        }
+
+        .profile-container {
+            max-width: 1100px;
+            margin: 2.5rem auto;
+            padding: 1.25rem;
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 1.25rem;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.04);
+            backdrop-filter: blur(var(--glass-blur));
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+            margin-bottom: 1.75rem;
+        }
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex: 0 0 110px;
+            border: 4px solid rgba(241,196,15,0.15);
+            background: linear-gradient(135deg, rgba(241,196,15,0.12), rgba(241,196,15,0.06));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+
+        .profile-header .meta {
+            flex:1;
+        }
+
+        .profile-header h1 {
+            margin:0 0 6px 0;
+            font-size:1.6rem;
+            color: #fff;
+            display:flex; align-items:center; gap:0.6rem;
+        }
+
+        .profile-header p { margin:0; color:var(--muted); }
+
+        .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin:1rem 0; }
+
+        .stat-box {
+            background: var(--panel);
+            color: #fff;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .stat-number { font-size: 1.25rem; font-weight:700; }
+
+        .action-buttons { display:flex; gap:10px; margin: 0.75rem 0 1.25rem 0; }
+        .btn-primary { background: linear-gradient(90deg,var(--primary), #d4b10a); color: #111; padding:10px 16px; border-radius:10px; border:none; cursor:pointer; box-shadow:0 6px 18px rgba(241,196,15,0.12); }
+        .btn-secondary { background: transparent; color: var(--muted); padding:10px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
+
+        .preferences-section, .shoot-history { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.03); margin-bottom:1rem; }
+
+        .preferences-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+
+        .preference-item { background: rgba(255,255,255,0.02); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); }
+
+        .badge { display:inline-block; background: rgba(241,196,15,0.12); color: var(--primary); padding:6px 10px; border-radius:999px; margin:4px 6px 4px 0; font-weight:600; }
+
+        .shoot-item { background: rgba(255,255,255,0.02); padding:12px; border-radius:10px; border-left:4px solid rgba(241,196,15,0.15); margin-bottom:12px; }
+
+        .empty-state { text-align:center; padding:30px; color:var(--muted); }
+
+        .analyzed-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:14px; }
+        .photo-card { border-radius:10px; overflow:hidden; background: #0b0b0b; border:1px solid rgba(255,255,255,0.03); }
+        .photo-card img { width:100%; height:160px; object-fit:cover; display:block; }
+        .photo-card .meta { padding:10px; color:var(--muted); font-size:0.9rem; }
+
+        .loading { text-align:center; padding:30px; color:var(--primary); }
+        .error { background: rgba(231,76,60,0.08); color:#f39c9c; padding:12px; border-radius:8px; margin-bottom:12px; }
+
+        @media (max-width:768px) {
+            .profile-header { flex-direction:row; gap:12px; }
+            .profile-avatar { width:84px; height:84px; }
+            .action-buttons { flex-direction:column; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="{{ url_for('home') }}" class="nav-logo">ITS_CAPTURED</a>
+        <div class="nav-user">
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('dashboard') }}'" style="margin-right: 10px; background-color: #28a745;">
+                <i class="fas fa-home"></i> Dashboard
+            </button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('camera_ui') }}'" style="margin-right: 10px; background-color: #28a745;">
+                <i class="fas fa-camera"></i> AI Camera
+            </button>
+            <button class="nav-btn logout-btn" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Profile Content -->
+    <div class="profile-container">
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading your profile...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="profileContent" style="display: none;">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img id="profileAvatar" src="/static/uploads/1.jpg" alt="avatar">
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+                    <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
+                    <button class="btn-secondary" id="changeAvatarBtn">Change Photo</button>
+                </div>
+                <div class="meta">
+                    <h1><i class="fas fa-user-circle"></i> <span id="profileName">My Profile</span></h1>
+                    <p id="profileEmail">email@example.com</p>
+                    <p id="profileCreatedAt">Member since N/A</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-primary" onclick="editPreferences()"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-secondary" disabled title="Log Shoot coming soon"><i class="fas fa-plus"></i> Log Shoot</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- Action Buttons -->
+                <div class="action-buttons">
+                <button class="btn-primary" onclick="editPreferences()">
+                    <i class="fas fa-edit"></i> Edit Preferences
+                </button>
+                <button class="btn-primary" disabled title="Log Shoot coming soon">
+                    <i class="fas fa-plus"></i> Log New Shoot
+                </button>
+                <button class="btn-primary" onclick="window.location.href='{{ url_for('send_message') }}'">
+                    <i class="fas fa-envelope"></i> Send Message
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='{{ url_for('dashboard') }}'">
+                    Back to Dashboard
+                </button>
+            </div>
+
+            <!-- Photography Preferences -->
+            <div class="preferences-section">
+                <h2><i class="fas fa-cogs"></i> Photography Preferences</h2>
+                <div id="preferencesContent">
+                    <div class="empty-state">
+                        <i class="fas fa-camera"></i>
+                        <p>No preferences set yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shoot History -->
+            <div class="shoot-history">
+                <h2><i class="fas fa-history"></i> Shoot History</h2>
+                <div id="shootHistoryContent">
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <p>No shoots logged yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="shoot-history">
+                <h2><i class="fas fa-comments"></i> Messages</h2>
+                <div id="messagesContent">
+                    <div class="empty-state">
+                        <i class="fas fa-envelope-open"></i>
+                        <p>No messages yet. Use Send Message to contact admins.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analyzed Photos -->
+            <div class="shoot-history" style="border-top: 2px solid #667eea; padding-top: 30px; margin-top: 30px;">
+                <h2><i class="fas fa-image"></i> Analyzed Photos</h2>
+                <div id="analyzedPhotosContent">
+                    <div class="empty-state">
+                        <i class="fas fa-photo-video"></i>
+                        <p>No analyzed photos yet</p>
+                        <p><small>Analyze scenes from the Camera UI to add photos to your profile</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        let profileData = null;
+
+        // Load profile on page load
+        document.addEventListener('DOMContentLoaded', loadProfile);
+
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/profile');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to load profile');
+                    return;
+                }
+
+                profileData = data;
+                displayProfile();
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Server error while loading profile');
+            }
+        }
+
+        function displayProfile() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profileContent').style.display = 'block';
+
+            // Display basic info
+            document.getElementById('profileName').textContent = profileData.name || 'Unknown';
+            document.getElementById('profileEmail').textContent = profileData.email || 'unknown@email.com';
+            
+            // Avatar
+            const avatarEl = document.getElementById('profileAvatar');
+            if (profileData.avatar_url) {
+                avatarEl.src = profileData.avatar_url;
+            } else if (profileData.image_path) {
+                avatarEl.src = '/' + profileData.image_path;
+            } else {
+                avatarEl.src = '/static/uploads/1.jpg';
+            }
+
+            // wire up avatar input and change button
+            const avatarInput = document.getElementById('avatarInput');
+            const changeBtn = document.getElementById('changeAvatarBtn');
+            if (changeBtn && avatarInput) {
+                changeBtn.addEventListener('click', () => avatarInput.click());
+                avatarInput.addEventListener('change', () => uploadAvatar());
+            }
+
+            const createdDate = profileData.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A';
+            document.getElementById('profileCreatedAt').textContent = `Member since ${createdDate}`;
+
+            // Display stats
+            displayStats();
+
+            // Display preferences
+            displayPreferences();
+
+            // Display shoot history
+            displayShootHistory();
+
+            // Display user messages
+            displayMessages();
+
+            // Display analyzed photos
+            displayAnalyzedPhotos();
+        }
+
+        function displayStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = '';
+
+            const shootCount = profileData.shoot_history ? profileData.shoot_history.total_shoots : 0;
+            const specializations = profileData.preferences ? profileData.preferences.specialization.length : 0;
+            const equipment = profileData.preferences ? profileData.preferences.equipment.length : 0;
+
+            const stats = [
+                { icon: 'fa-camera', label: 'Total Shoots', value: shootCount },
+                { icon: 'fa-list', label: 'Specializations', value: specializations },
+                { icon: 'fa-toolbox', label: 'Equipment', value: equipment },
+                { icon: 'fa-star', label: 'Experience', value: (profileData.preferences ? profileData.preferences.experience_level : 'beginner').charAt(0).toUpperCase() + (profileData.preferences ? profileData.preferences.experience_level : 'beginner').slice(1) }
+            ];
+
+            stats.forEach(stat => {
+                const statBox = document.createElement('div');
+                statBox.className = 'stat-box';
+                if (typeof stat.value === 'number') {
+                    statBox.innerHTML = `
+                        <div class="stat-number">${stat.value}</div>
+                        <div class="stat-label"><i class="fas ${stat.icon}"></i> ${stat.label}</div>
+                    `;
+                } else {
+                    statBox.innerHTML = `
+                        <div class="stat-label"><i class="fas ${stat.icon}"></i></div>
+                        <div class="stat-number" style="font-size: 1.2em; margin-top: 5px;">${stat.value}</div>
+                        <div class="stat-label">${stat.label}</div>
+                    `;
+                }
+                statsGrid.appendChild(statBox);
+            });
+        }
+
+        function displayPreferences() {
+            const container = document.getElementById('preferencesContent');
+            container.innerHTML = '';
+
+            if (!profileData.preferences) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-camera"></i>
+                        <p>No preferences set yet</p>
+                        <button class="btn-primary" onclick="editPreferences()" style="margin-top: 15px;">
+                            Set Preferences
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const prefs = profileData.preferences;
+
+            const grid = document.createElement('div');
+            grid.className = 'preferences-grid';
+
+            // Experience Level
+            const expCard = document.createElement('div');
+            expCard.className = 'preference-item';
+            expCard.innerHTML = `
+                <h4><i class="fas fa-graduation-cap"></i> Experience Level</h4>
+                <p style="font-size: 1.2em; color: #667eea; font-weight: 600;">
+                    ${prefs.experience_level.charAt(0).toUpperCase() + prefs.experience_level.slice(1)}
+                </p>
+            `;
+            grid.appendChild(expCard);
+
+            // Specialization
+            const specCard = document.createElement('div');
+            specCard.className = 'preference-item';
+            specCard.innerHTML = `
+                <h4><i class="fas fa-camera"></i> Specialization</h4>
+                <div>
+                    ${prefs.specialization.length > 0 
+                        ? prefs.specialization.map(s => `<span class="badge">${s}</span>`).join('')
+                        : '<p style="color: #999;">Not specified</p>'
+                    }
+                </div>
+            `;
+            grid.appendChild(specCard);
+
+            // Equipment
+            const equipCard = document.createElement('div');
+            equipCard.className = 'preference-item';
+            equipCard.innerHTML = `
+                <h4><i class="fas fa-toolbox"></i> Equipment</h4>
+                <div>
+                    ${prefs.equipment.length > 0
+                        ? prefs.equipment.map(e => `<span class="badge">${e}</span>`).join('')
+                        : '<p style="color: #999;">Not specified</p>'
+                    }
+                </div>
+            `;
+            grid.appendChild(equipCard);
+
+            container.appendChild(grid);
+        }
+
+        function displayShootHistory() {
+            const container = document.getElementById('shootHistoryContent');
+            container.innerHTML = '';
+
+            if (!profileData.shoot_history || profileData.shoot_history.shoots.length === 0) {
+                container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-book"></i>
+                            <p>No shoots logged yet</p>
+                            <button class="btn-primary" disabled style="margin-top: 15px;">
+                                Log Your First Shoot
+                            </button>
+                        </div>
+                `;
+                return;
+            }
+
+            const shoots = profileData.shoot_history.shoots;
+            
+            // Show shoots in reverse order (newest first)
+            shoots.reverse().forEach(shoot => {
+                const shootItem = document.createElement('div');
+                shootItem.className = 'shoot-item';
+
+                const shootDate = new Date(shoot.date).toLocaleDateString();
+                
+                shootItem.innerHTML = `
+                    <h4><i class="fas fa-camera"></i> ${shoot.shoot_type}</h4>
+                    <div class="shoot-detail">
+                        ${shoot.location ? `<div class="shoot-detail-item"><span class="detail-label"><i class="fas fa-map-marker-alt"></i> Location:</span> ${shoot.location}</div>` : ''}
+                        <div class="shoot-detail-item"><span class="detail-label"><i class="fas fa-calendar"></i> Date:</span> ${shootDate}</div>
+                        ${shoot.images_count ? `<div class="shoot-detail-item"><span class="detail-label"><i class="fas fa-image"></i> Images:</span> ${shoot.images_count}</div>` : ''}
+                    </div>
+                    ${shoot.notes ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;"><p style="margin: 0;"><strong>Notes:</strong> ${shoot.notes}</p></div>` : ''}
+                `;
+
+                container.appendChild(shootItem);
+            });
+        }
+
+        function displayAnalyzedPhotos() {
+            const container = document.getElementById('analyzedPhotosContent');
+            container.innerHTML = '';
+
+            // Check if analyzed_photos exists in the profile
+            const analyzedPhotos = profileData.analyzed_photos || [];
+
+            if (analyzedPhotos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-photo-video"></i>
+                        <p>No analyzed photos yet</p>
+                        <p><small>Analyze scenes from the Camera UI to add photos to your profile</small></p>
+                        <button class="btn-primary" onclick="window.location.href='{{ url_for('camera_ui') }}'" style="margin-top: 15px;">
+                            Go to Camera UI
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Display analyzed photos in a grid
+            const grid = document.createElement('div');
+            grid.className = 'analyzed-grid';
+
+            analyzedPhotos.forEach(photo => {
+                const photoPath = photo.image_path || photo.image_url || '';
+                const photoDate = photo.analyzed_at ? new Date(photo.analyzed_at).toLocaleString() : '';
+
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.innerHTML = `
+                    <div style="position: relative; overflow: hidden; background: #000; height: 160px;">
+                        <img src="/${photoPath}" alt="Analyzed photo" onclick="window.open('/${photoPath}', '_blank')">
+                    </div>
+                    <div class="meta">
+                        <div style="margin-bottom:6px; color:var(--muted);"><i class="fas fa-calendar"></i> ${photoDate}</div>
+                        <div style="font-size:0.85em; color:var(--muted);">${photoPath.split('/').pop()}</div>
+                        <button onclick="deleteAnalyzedPhoto('${photo.photo_id || photo.id || photo._id}', this)" style="margin-top:10px; width:100%; padding:8px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-size:0.9em;"> <i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function deleteAnalyzedPhoto(photoId, button) {
+            if (confirm('Are you sure you want to delete this photo?')) {
+                fetch(`/api/analyzed-photos/${photoId}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.message) {
+                            button.closest('div').style.opacity = '0.5';
+                            setTimeout(() => loadProfile(), 500);
+                        }
+                    })
+                    .catch(err => console.error('Error:', err));
+            }
+        }
+
+        
+
+        function editPreferences() {
+            // Redirect to a preferences edit page (or you can create a modal)
+            // For now, we'll show an alert
+            alert('Preferences editing page coming soon!\n\nYou can update preferences on registration.');
+        }
+
+        async function displayMessages() {
+            const container = document.getElementById('messagesContent');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
+            try {
+                console.log('[displayMessages] Fetching /api/my-chat-requests');
+                const res = await fetch('/api/my-chat-requests');
+                console.log('[displayMessages] Response status:', res.status);
+                console.log('[displayMessages] Response headers - Content-Type:', res.headers.get('content-type'));
+                
+                // Check if response is JSON
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.error('[displayMessages] Response is not JSON, got:', contentType);
+                    const text = await res.text();
+                    console.error('[displayMessages] Response text (first 500 chars):', text.substring(0, 500));
+                    container.innerHTML = `<div class="empty-state"><p style="color:#e74c3c;">Error: Server returned invalid response type</p></div>`;
+                    return;
+                }
+                
+                let data;
+                try {
+                    data = await res.json();
+                    console.log('[displayMessages] Parsed JSON data:', data);
+                } catch (parseErr) {
+                    console.error('[displayMessages] JSON parse error:', parseErr);
+                    container.innerHTML = `<div class="empty-state"><p style="color:#e74c3c;">Error: Invalid response format</p></div>`;
+                    return;
+                }
+                
+                if (!res.ok) {
+                    console.error('[displayMessages] Error response:', data);
+                    container.innerHTML = `<div class="empty-state"><p style="color:#e74c3c;">Error (${res.status}): ${data.error || 'Failed to load messages'}</p></div>`;
+                    return;
+                }
+                
+                const msgs = data.chat_requests || [];
+                console.log('[displayMessages] Found', msgs.length, 'messages');
+                
+                if (msgs.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-envelope-open"></i><p>No messages yet. Use Send Message to contact admins.</p></div>`;
+                    return;
+                }
+
+                const list = document.createElement('div');
+                list.style = 'display:flex; flex-direction:column; gap:12px;';
+                msgs.forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'shoot-item';
+                    const respondedHtml = m.response ? `<div style="margin-top:8px; padding:8px; border-radius:8px; background: rgba(255,255,255,0.02);"><strong>Response:</strong><div style="color:var(--muted); margin-top:6px;">${m.response}</div></div>` : '';
+                    card.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                            <div style="flex:1;">
+                                <div style="color:var(--muted); font-size:0.9rem;">${new Date(m.created_at).toLocaleString()}</div>
+                                ${m.subject ? `<h4 style="margin:6px 0;">${m.subject}</h4>` : ''}
+                                <div style="color:var(--muted);">${m.message}</div>
+                                ${respondedHtml}
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+
+                container.innerHTML = '';
+                container.appendChild(list);
+            } catch (err) {
+                console.error('[displayMessages] Fetch error:', err);
+                container.innerHTML = `<div class="empty-state"><p style="color:#e74c3c;">Server error loading messages: ${err.message}</p></div>`;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function uploadAvatar() {
+            const input = document.getElementById('avatarInput');
+            if (!input || !input.files || input.files.length === 0) return;
+
+            const file = input.files[0];
+            const fd = new FormData();
+            fd.append('avatar', file);
+
+            try {
+                // show a quick loading state
+                const changeBtn = document.getElementById('changeAvatarBtn');
+                const origText = changeBtn.textContent;
+                changeBtn.textContent = 'Uploading...';
+                changeBtn.disabled = true;
+
+                const res = await fetch('/api/profile/avatar', {
+                    method: 'POST',
+                    body: fd,
+                    credentials: 'same-origin'
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showError(data.error || 'Failed to upload avatar');
+                    changeBtn.textContent = origText;
+                    changeBtn.disabled = false;
+                    return;
+                }
+
+                // update preview and local profileData
+                const avatarEl = document.getElementById('profileAvatar');
+                if (data.image_path) {
+                    avatarEl.src = '/' + data.image_path;
+                    if (profileData) profileData.image_path = data.image_path;
+                }
+
+                changeBtn.textContent = 'Uploaded';
+                setTimeout(() => {
+                    changeBtn.textContent = origText;
+                    changeBtn.disabled = false;
+                }, 900);
+
+            } catch (err) {
+                console.error('Avatar upload error', err);
+                showError('Server error while uploading avatar');
+                const changeBtn = document.getElementById('changeAvatarBtn');
+                if (changeBtn) {
+                    changeBtn.disabled = false;
+                    changeBtn.textContent = 'Change Photo';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

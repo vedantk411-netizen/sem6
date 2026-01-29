@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "pymongo": "^0.0.1-security",
+    "requests": "^0.3.0"
+  }
+}

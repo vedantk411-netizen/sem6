@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Camera Assistant | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: white; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        .navbar-simple {
+            background: linear-gradient(180deg, rgba(15, 15, 15, 0.95) 0%, rgba(15, 15, 15, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .camera-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        .camera-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .camera-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #f1c40f 0%, #fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .camera-header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        video, canvas, img {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 16px;
+            border: 2px solid rgba(241, 196, 15, 0.3);
+            margin: 0 auto 1.5rem;
+            display: block;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        #capturedImage { display: none; }
+        .controls { 
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f1c40f 0%, #d4a617 100%);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            margin: 0.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(241, 196, 15, 0.5);
+        }
+        .btn-secondary { 
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #f1c40f;
+        }
+        .analysis-box {
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: left;
+            margin-top: 2rem;
+            white-space: pre-wrap;
+            display: none;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            color: #fff;
+            line-height: 1.8;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .loading { 
+            display: none;
+            text-align: center;
+            color: #f1c40f;
+            font-size: 1.1rem;
+            padding: 2rem;
+        }
+        .loading i {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar-simple">
+        <a href="{{ url_for('dashboard') }}" style="color: white; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 0.7rem; font-weight: 700;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <span style="font-weight: bold; font-size: 1.1rem;">🤖 AI Scene Analyzer</span>
+    </nav>
+
+    <div class="camera-container">
+        <div class="camera-header">
+            <h1><i class="fas fa-camera"></i> Analyze Your Scene</h1>
+            <p>Point your camera at a scene to get photography tips and suggestions</p>
+        </div>
+
+        <!-- Video Feed -->
+        <video id="video" autoplay playsinline></video>
+        
+        <!-- Canvas for Capture (Hidden) -->
+        <canvas id="canvas" style="display:none;"></canvas>
+        
+        <!-- Captured Image Preview -->
+        <img id="capturedImage" alt="Captured Scene">
+
+        <div class="controls">
+            <button id="startBtn" class="btn"><i class="fas fa-video"></i> Start Camera</button>
+            <button id="captureBtn" class="btn btn-secondary" disabled>
+                <i class="fas fa-camera"></i> Capture & Analyze
+            </button>
+            
+            <!-- File Upload Fallback for Mobile -->
+            <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            <button id="uploadBtn" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-upload"></i> Upload Image
+            </button>
+            <button id="restartBtn" class="btn btn-secondary" style="display:none;">
+                <i class="fas fa-redo"></i> Analyze Another
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Analyzing scene with AI...
+        </div>
+
+        <div id="result" class="analysis-box"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const capturedImage = document.getElementById('capturedImage');
+        const startBtn = document.getElementById('startBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const resultBox = document.getElementById('result');
+        const loading = document.getElementById('loading');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // Start Webcam
+        startBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                capturedImage.style.display = 'none';
+                captureBtn.disabled = false;
+                startBtn.style.display = 'none';
+            } catch (err) {
+                alert("Error accessing camera: " + err);
+            }
+        });
+
+        // Capture & Analyze
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = canvas.toDataURL('image/jpeg');
+            analyzeImage(imageData);
+        });
+
+        // Handle File Upload
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    analyzeImage(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Restart / Analyze Another
+        restartBtn.addEventListener('click', () => {
+            capturedImage.style.display = 'none';
+            resultBox.style.display = 'none';
+            restartBtn.style.display = 'none';
+            uploadBtn.style.display = 'inline-flex';
+            captureBtn.style.display = 'inline-flex';
+
+            if (video.srcObject) {
+                video.style.display = 'block';
+            } else {
+                video.style.display = 'block';
+                startBtn.style.display = 'inline-flex';
+                captureBtn.disabled = true;
+            }
+        });
+
+        async function analyzeImage(base64Image) {
+            // Show preview
+            video.style.display = 'none';
+            capturedImage.src = base64Image;
+            capturedImage.style.display = 'block';
+            
+            // UI Updates
+            loading.style.display = 'flex';
+            loading.style.justifyContent = 'center';
+            resultBox.style.display = 'none';
+            resultBox.innerText = "";
+            captureBtn.style.display = 'none';
+            uploadBtn.style.display = 'none';
+            restartBtn.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/analyze-scene', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image })
+                });
+
+                const data = await response.json();
+                loading.style.display = 'none';
+                resultBox.style.display = 'block';
+                
+                if (data.suggestion) {
+                    resultBox.innerHTML = '<strong>✨ AI Analysis:</strong>\n' + data.suggestion;
+                } else {
+                    resultBox.innerText = "Error: " + (data.error || "Unknown error");
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                alert("Failed to connect to server.");
+            } finally {
+                restartBtn.style.display = 'inline-flex';
+            }
+        }
+    </script>
+</body>
+</html>

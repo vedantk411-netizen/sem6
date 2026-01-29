@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Photography Guide | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+        .navbar {
+            background: linear-gradient(180deg, rgba(15, 15, 15, 0.95) 0%, rgba(15, 15, 15, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-logo { 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: #fff; 
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: linear-gradient(135deg, #f1c40f 0%, #fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nav-btn { 
+            color: #fff; 
+            text-decoration: none; 
+            padding: 10px 20px; 
+            border: 1.5px solid #f1c40f; 
+            border-radius: 8px; 
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+        }
+        .nav-btn:hover { 
+            background: #f1c40f; 
+            color: #000; 
+        }
+
+        #chatbot-container {
+            position: static !important;
+            width: 100% !important;
+            max-width: 100%;
+            height: calc(100vh - 70px);
+            margin: 0;
+            display: flex !important;
+            flex-direction: column;
+            background: rgba(30, 30, 30, 0.8);
+            overflow: hidden;
+            border: none;
+            box-shadow: none;
+        }
+        .chat-header { 
+            display: none;
+        }
+        .chat-messages { 
+            flex: 1; 
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem;
+        }
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #f1c40f;
+            border-radius: 4px;
+        }
+
+        .chat-msg {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #f1c40f 0%, #d4a617 100%);
+            color: #000;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-input-area { 
+            padding: 1.5rem;
+            background: linear-gradient(180deg, rgba(40, 40, 40, 0.9) 0%, rgba(30, 30, 30, 0.9) 100%);
+            display: flex; 
+            gap: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-input-area input { 
+            flex: 1; 
+            padding: 12px 16px;
+            border-radius: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        .chat-input-area input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .chat-input-area input:focus {
+            border-color: #f1c40f;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.2);
+        }
+        .chat-input-area button { 
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #f1c40f 0%, #d4a617 100%);
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: #000;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chat-input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
+        }
+        
+        .shoot-type-selector {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .shoot-type-selector label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .shoot-type-selector select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        .shoot-type-selector select:hover,
+        .shoot-type-selector select:focus {
+            border-color: #f1c40f;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-logo"><i class="fas fa-camera"></i> ITS_CAPTURED</a>
+        <a href="/" class="nav-btn"><i class="fas fa-home"></i> Back to Home</a>
+    </nav>
+
+    <div id="chatbot-container">
+        <div id="chat-messages" class="chat-messages">
+            <div class="chat-msg bot">
+                <strong>👋 Hello!</strong> I'm your dedicated AI photography assistant. Ask me anything about lighting, composition, camera settings, poses, or any photography topics! You can also select a shoot type below for more targeted advice.
+            </div>
+        </div>
+        
+        <div class="shoot-type-selector">
+            <label for="shootTypeSelect"><i class="fas fa-camera-retro"></i> Filter by Shoot Type:</label>
+            <select id="shootTypeSelect">
+                <option value="">All Types</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Portrait">Portrait</option>
+                <option value="Product">Product</option>
+                <option value="Landscape">Landscape</option>
+                <option value="Event">Event</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Sports">Sports</option>
+            </select>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about lighting, poses, camera settings...">
+            <button id="chat-send-btn"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

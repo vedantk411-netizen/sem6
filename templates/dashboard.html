@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dashboard | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="{{ url_for('home') }}" class="nav-logo"><i class="fas fa-camera"></i> ITS_CAPTURED</a>
+        <div class="nav-user">
+            {% if is_admin %}
+                <button class="nav-btn" onclick="window.location.href='/admin/dashboard'" style="margin-right: 10px;">
+                    <i class="fas fa-cog"></i> Admin Dashboard
+                </button>
+            {% endif %}
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('profile') }}'" style="margin-right: 10px;">
+                <i class="fas fa-user"></i> My Profile
+            </button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('camera_ui') }}'" style="margin-right: 10px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); border-color: #2ecc71;">
+                <i class="fas fa-camera"></i> AI Camera
+            </button>
+            <span id="user-greeting" style="color: var(--primary-color); margin-right: 15px; font-weight: 700;">Welcome, Photographer</span>
+            <button class="nav-btn logout-btn" onclick="window.location.href='/logout'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="section-header">
+            <h2><i class="fas fa-image"></i> Photography Studio</h2>
+            <p>Choose your photography category to get personalized AI suggestions</p>
+        </div>
+
+        <!-- Shoot Type Grid -->
+        <div id="shoot-type-section">
+            <div class="shoot-grid" id="shoot-grid-container">
+                <!-- Dynamically populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #category-selection div:hover {
+            transform: translateY(-15px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 50px rgba(241, 196, 15, 0.25);
+            background: rgba(241, 196, 15, 0.08);
+        }
+    </style>
+
+    <script>
+        // Pass shoot types from Flask to JavaScript
+        const shootTypesData = {{ shoot_types | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=2"></script>
+    <script>
+        // Ensure dashboard initializes correctly
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelection = document.getElementById('category-selection');
+            const shootTypeSection = document.getElementById('shoot-type-section');
+            
+            // Show shoot types grid by default (user expects to see all types first)
+            if (categorySelection) {
+                categorySelection.style.display = 'none';
+                categorySelection.style.visibility = 'hidden';
+            }
+            
+            if (shootTypeSection) {
+                shootTypeSection.style.display = 'block';
+                shootTypeSection.style.visibility = 'visible';
+            }
+
+            // Populate all shoot types into the grid
+            if (typeof populateAllShootTypes === 'function') {
+                populateAllShootTypes();
+            }
+
+            console.log('Dashboard initialized - Shoot types visible');
+            console.log('Shoot types available:', shootTypesData);
+        });
+    </script>
+</body>
+</html>

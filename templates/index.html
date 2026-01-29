@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Photography Assistant | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo"><i class="fas fa-camera"></i> ITS_CAPTURED</div>
+        <div>
+            <a href="/chatbot" class="nav-btn" style="margin-right: 10px; display: inline-block;">
+                <i class="fas fa-robot"></i> AI Chat
+            </a>
+            <button id="login-trigger" class="nav-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1><i class="fas fa-camera-retro"></i> Capture the Moment</h1>
+        <p>Your AI-Powered Photography Mentor</p>
+    </div>
+
+    <!-- Shoot Type Selection (Visible to all, but gated) -->
+    <div class="dashboard-container">
+        <div class="section-header">
+            <h2>Select Photography Category</h2>
+            <p>Choose your photography scenario to get personalized AI suggestions</p>
+        </div>
+
+        {% include 'shoot_grid.html' %}
+    </div>
+
+    <!-- Login Modal (Hidden by default) -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="login-container">
+            <span class="close-btn">&times;</span>
+            <div class="brand-header">
+                <h1><i class="fas fa-camera"></i> ITS_CAPTURED</h1>
+                <p>AI-Powered Photography Assistant</p>
+            </div>
+
+            <!-- Role Toggle -->
+            <div class="role-switch">
+                <button id="btn-photographer" class="role-btn active" onclick="setRole('photographer')">
+                    <i class="fas fa-camera"></i> Photographer
+                </button>
+                <button id="btn-admin" class="role-btn" onclick="setRole('admin')">
+                    <i class="fas fa-cog"></i> Admin
+                </button>
+            </div>
+
+            <form id="authForm">
+                <h2 id="form-title"><i class="fas fa-sign-in-alt"></i> Photographer Login</h2>
+                
+                <div class="input-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" placeholder="lens@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fas fa-check"></i> Enter Studio</button>
+                
+                <p class="footer-text">New here? <a href="#" id="show-register"><i class="fas fa-user-plus"></i> Create an account</a></p>
+            </form>
+
+            <!-- Registration Form (Hidden by default) -->
+            <form id="registerForm" style="display: none;">
+                <h2 id="reg-form-title"><i class="fas fa-user-plus"></i> Create Account</h2>
+                
+                <div class="input-group">
+                    <label for="reg-name"><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="reg-name" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-email"><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="reg-email" placeholder="lens@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" required>
+                </div>
+
+                <!-- Photographer Preferences Section -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+                    <h5 style="font-size: 14px; margin-bottom: 10px; color: var(--primary-color);"><i class="fas fa-star"></i> Photography Preferences (Optional)</h5>
+                    
+                    <div class="input-group">
+                        <label for="reg-experience"><i class="fas fa-chart-line"></i> Experience Level</label>
+                        <select id="reg-experience" class="form-select" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.05); color: white;">
+                            <option value="beginner">🎓 Beginner</option>
+                            <option value="intermediate">📸 Intermediate</option>
+                            <option value="expert">⭐ Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-tags"></i> Specialization (Select all that apply)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Wedding"> 💍 Wedding</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Portrait"> 👤 Portrait</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Event"> 🎉 Event</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Outdoor"> 🌲 Outdoor</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Product"> 📦 Product</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-toolbox"></i> Equipment (Select all that apply)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="equipment" value="Canon"> 📷 Canon</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="equipment" value="Nikon"> 📷 Nikon</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="equipment" value="Sony"> 📷 Sony</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="equipment" value="GoPro"> 📹 GoPro</label>
+                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="equipment" value="DJI"> 🚁 DJI Drones</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fas fa-rocket"></i> Sign Up</button>
+                
+                <p class="footer-text">Already have an account? <a href="#" id="show-login"><i class="fas fa-sign-in-alt"></i> Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Sync client-side state with server-side session
+        const isServerSideLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+        if (!isServerSideLoggedIn) {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userName');
+        }
+    </script>
+</body>
+</html>
