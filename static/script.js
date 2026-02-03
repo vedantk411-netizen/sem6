@@ -556,11 +556,16 @@ function showShootOptions(typeName, cardElement) {
 
     const panel = document.createElement('div');
     panel.className = 'shoot-options-panel';
-    panel.style = 'margin-top:12px; display:flex; gap:8px; justify-content:center;';
     panel.innerHTML = `
-        <button class="btn-primary" style="padding:8px 12px;" onclick="selectShootType('${typeName}','outdoor')">Outdoor Shoot</button>
-        <button class="btn-secondary" style="padding:8px 12px;" onclick="selectShootType('${typeName}','indoor')">Indoor Shoot</button>
-        <button class="btn-secondary" style="padding:8px 12px; background:transparent; border:1px solid rgba(255,255,255,0.06);" onclick="this.closest('.shoot-options-panel').remove()">Close</button>
+        <button class="env-btn env-btn--outdoor" aria-label="Outdoor Shoot" title="Outdoor" onclick="selectShootType('${typeName}','outdoor')">
+            <i class="fas fa-tree"></i>
+        </button>
+        <button class="env-btn env-btn--indoor" aria-label="Indoor Shoot" title="Indoor" onclick="selectShootType('${typeName}','indoor')">
+            <i class="fas fa-home"></i>
+        </button>
+        <button class="env-btn env-btn--close" aria-label="Close options" title="Close" onclick="this.closest('.shoot-options-panel').remove()">
+            <i class="fas fa-times"></i>
+        </button>
     `;
 
     // Insert panel after the clicked card

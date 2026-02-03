@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Outdoor Photography Spots | ITS_CAPTURED</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .places-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .places-header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: #fff;
+        }
+
+        .places-header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .places-header p {
+            font-size: 1.1em;
+            color: #aaa;
+        }
+
+        .city-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .city-tab {
+            padding: 12px 25px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .city-tab:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .city-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: #764ba2;
+        }
+
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .place-card {
+            background: linear-gradient(135deg, #1f1f3f 0%, #2a2a4e 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: none;
+        }
+
+        .place-card.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .place-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(102, 126, 234, 0.3);
+            border-color: #764ba2;
+        }
+
+        .place-image {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .place-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .place-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #fff;
+            z-index: 1;
+        }
+
+        .place-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="60" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.2;
+        }
+
+        .place-content {
+            padding: 20px;
+        }
+
+        .place-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .place-city {
+            font-size: 0.85em;
+            color: #aaa;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .place-description {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .place-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .detail-label {
+            font-size: 0.75em;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: 0.9em;
+            color: #fff;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .place-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .back-link i {
+            margin-right: 8px;
+        }
+
+        .filter-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-input {
+            padding: 12px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 0.95em;
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            background: rgba(102, 126, 234, 0.2);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-input::placeholder {
+            color: #999;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #aaa;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .places-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .places-header h1 {
+                font-size: 2em;
+            }
+
+            .city-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo"><i class="fas fa-camera"></i> ITS_CAPTURED</div>
+        <div>
+            <a href="/" class="nav-btn" style="margin-right: 10px;">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="/rental" class="nav-btn" style="margin-right: 10px;">
+                <i class="fas fa-shop"></i> Rentals
+            </a>
+            <a href="/chatbot" class="nav-btn" style="margin-right: 10px;">
+                <i class="fas fa-robot"></i> AI Chat
+            </a>
+            <button id="login-trigger" class="nav-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="places-container">
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="places-header">
+            <h1><i class="fas fa-map-location-dot"></i> Best Outdoor Photography Spots</h1>
+            <p>Discover the most stunning locations for photography across Mumbai, Thane, Panvel & Pune</p>
+        </div>
+
+        <!-- City Tabs -->
+        <div class="city-tabs">
+            <button class="city-tab active" data-city="mumbai">
+                <i class="fas fa-city"></i> Mumbai
+            </button>
+            <button class="city-tab" data-city="thane">
+                <i class="fas fa-mountain"></i> Thane
+            </button>
+            <button class="city-tab" data-city="panvel">
+                <i class="fas fa-tree"></i> Panvel
+            </button>
+            <button class="city-tab" data-city="pune">
+                <i class="fas fa-landmark"></i> Pune
+            </button>
+        </div>
+
+        <!-- Search Filter -->
+        <div class="filter-section">
+            <input type="text" id="search-places" class="filter-input" placeholder="Search photography spots...">
+        </div>
+
+        <!-- Places Grid -->
+        <div class="places-grid" id="places-grid"></div>
+    </div>
+
+    <script>
+        const photographySpots = [
+            // Mumbai Spots
+            {
+                id: 1,
+                city: "mumbai",
+                name: "Marine Drive",
+                area: "South Mumbai",
+                description: "The iconic queen of the sea offers stunning sunset views and cityscape photography opportunities.",
+                bestTime: "5:00 PM - 7:00 PM",
+                difficulty: "Easy",
+                type: "Landscape, Urban",
+                distanceFromCenter: "5 km",
+                parking: "Available",
+                icon: "🌅",
+                image: "https://images.unsplash.com/photo-1566552881898-36eccfcd71d5?w=500&h=300&fit=crop"
+            },
+            {
+                id: 2,
+                city: "mumbai",
+                name: "Gateway of India",
+                area: "Colaba",
+                description: "Historic monument with architectural beauty perfect for golden hour and cultural photography.",
+                bestTime: "6:00 PM - 7:30 PM",
+                difficulty: "Medium",
+                type: "Architecture, Heritage",
+                distanceFromCenter: "3 km",
+                parking: "Limited",
+                icon: "🏛️",
+                image: "https://images.unsplash.com/photo-1599661046289-e31897846ca7?w=500&h=300&fit=crop"
+            },
+            {
+                id: 3,
+                city: "mumbai",
+                name: "Bandra Fort",
+                area: "Bandra",
+                description: "Beachfront fort with panoramic views perfect for portraits and seascape photography.",
+                bestTime: "Morning, Sunset",
+                difficulty: "Easy",
+                type: "Portrait, Landscape",
+                distanceFromCenter: "15 km",
+                parking: "Available",
+                icon: "🏰",
+                image: "https://images.unsplash.com/photo-1549887534-7c9934fc8e5a?w=500&h=300&fit=crop"
+            },
+            {
+                id: 4,
+                city: "mumbai",
+                name: "Worli Sea Face",
+                area: "Worli",
+                description: "Modern skyline with Arabian Sea backdrop, ideal for night and urban photography.",
+                bestTime: "After Sunset",
+                difficulty: "Easy",
+                type: "Urban, Night",
+                distanceFromCenter: "8 km",
+                parking: "Available",
+                icon: "🌃",
+                image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=500&h=300&fit=crop"
+            },
+            {
+                id: 5,
+                city: "mumbai",
+                name: "Kala Ghoda",
+                area: "South Mumbai",
+                description: "Cultural hub with artistic street life and vibrant colors for candid photography.",
+                bestTime: "Morning, Afternoon",
+                difficulty: "Medium",
+                type: "Street, Cultural",
+                distanceFromCenter: "4 km",
+                parking: "Limited",
+                icon: "🎨",
+                image: "https://images.unsplash.com/photo-1572735000487-a50dcf6437e9?w=500&h=300&fit=crop"
+            },
+            {
+                id: 6,
+                city: "mumbai",
+                name: "Juhu Beach",
+                area: "Western Suburbs",
+                description: "Long sandy beach with evening activities perfect for candid and lifestyle photography.",
+                bestTime: "5:00 PM - 7:00 PM",
+                difficulty: "Easy",
+                type: "Beach, Lifestyle",
+                distanceFromCenter: "20 km",
+                parking: "Available",
+                icon: "🏖️",
+                image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=300&fit=crop"
+            },
+            {
+                id: 7,
+                city: "mumbai",
+                name: "Aarey Colony",
+                area: "Goregaon",
+                description: "Green sanctuary with forest trails ideal for nature and wildlife photography.",
+                bestTime: "Morning",
+                difficulty: "Medium",
+                type: "Nature, Wildlife",
+                distanceFromCenter: "25 km",
+                parking: "Available",
+                icon: "🌿",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=300&fit=crop"
+            },
+            {
+                id: 8,
+                city: "mumbai",
+                name: "ISKCON Temple",
+                area: "Girgaum",
+                description: "Spiritual architecture with colorful interiors perfect for religious and detailed photography.",
+                bestTime: "Morning, Evening",
+                difficulty: "Medium",
+                type: "Architecture, Religious",
+                distanceFromCenter: "6 km",
+                parking: "Available",
+                icon: "🕉️",
+                image: "https://images.unsplash.com/photo-1548013146-72f92f20d066?w=500&h=300&fit=crop"
+            },
+
+            // Thane Spots
+            {
+                id: 9,
+                city: "thane",
+                name: "Saphale Crab Farm",
+                area: "Thane",
+                description: "Serene water landscape with traditional fishing setting and sunset reflections.",
+                bestTime: "5:00 PM - 6:30 PM",
+                difficulty: "Easy",
+                type: "Landscape, Water",
+                distanceFromCenter: "35 km",
+                parking: "Available",
+                icon: "🌊",
+                image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=500&h=300&fit=crop"
+            },
+            {
+                id: 10,
+                city: "thane",
+                name: "Tikuji-ni-Wadi Lake",
+                area: "Thane",
+                description: "Peaceful lake with surrounding greenery ideal for early morning and nature photography.",
+                bestTime: "6:00 AM - 8:00 AM",
+                difficulty: "Easy",
+                type: "Nature, Water",
+                distanceFromCenter: "30 km",
+                parking: "Available",
+                icon: "💧",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 11,
+                city: "thane",
+                name: "Ghodbunder Fort",
+                area: "Thane",
+                description: "Historic fort ruins with coastal views offering unique architectural photography.",
+                bestTime: "Morning, Sunset",
+                difficulty: "Medium",
+                type: "Architecture, Heritage",
+                distanceFromCenter: "40 km",
+                parking: "Limited",
+                icon: "🏯",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 12,
+                city: "thane",
+                name: "Upvan Lake",
+                area: "Thane",
+                description: "Beautiful reservoir with bird watching opportunities perfect for wildlife photography.",
+                bestTime: "Early Morning",
+                difficulty: "Easy",
+                type: "Wildlife, Nature",
+                distanceFromCenter: "32 km",
+                parking: "Available",
+                icon: "🦆",
+                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=300&fit=crop"
+            },
+            {
+                id: 13,
+                city: "thane",
+                name: "Masund Beach",
+                area: "Thane",
+                description: "Rocky beach with dramatic coastline ideal for landscape and dramatic photography.",
+                bestTime: "Sunset",
+                difficulty: "Medium",
+                type: "Landscape, Beach",
+                distanceFromCenter: "45 km",
+                parking: "Available",
+                icon: "🪨",
+                image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=300&fit=crop"
+            },
+            {
+                id: 14,
+                city: "thane",
+                name: "Tungareshwar National Park",
+                area: "Thane",
+                description: "Dense forest with scenic trails perfect for trekking and nature photography.",
+                bestTime: "Morning",
+                difficulty: "Hard",
+                type: "Nature, Adventure",
+                distanceFromCenter: "50 km",
+                parking: "Available",
+                icon: "🌲",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=300&fit=crop"
+            },
+
+            // Panvel Spots
+            {
+                id: 15,
+                city: "panvel",
+                name: "Karnala Bird Sanctuary",
+                area: "Panvel",
+                description: "Renowned bird sanctuary with historic fort offering wildlife and landscape photography.",
+                bestTime: "Early Morning",
+                difficulty: "Medium",
+                type: "Wildlife, Adventure",
+                distanceFromCenter: "55 km",
+                parking: "Available",
+                icon: "🦅",
+                image: "https://images.unsplash.com/photo-1549887534-7c9934fc8e5a?w=500&h=300&fit=crop"
+            },
+            {
+                id: 16,
+                city: "panvel",
+                name: "Alibaug Road",
+                area: "Panvel",
+                description: "Scenic highway with surrounding hills and agricultural landscape ideal for road photography.",
+                bestTime: "Morning, Afternoon",
+                difficulty: "Easy",
+                type: "Landscape, Road",
+                distanceFromCenter: "50 km",
+                parking: "Available",
+                icon: "🛣️",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 17,
+                city: "panvel",
+                name: "Kharghar Hill",
+                area: "Panvel",
+                description: "Hilltop location with panoramic views of surrounding landscape and sea.",
+                bestTime: "Sunset",
+                difficulty: "Medium",
+                type: "Landscape, Adventure",
+                distanceFromCenter: "45 km",
+                parking: "Available",
+                icon: "⛰️",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 18,
+                city: "panvel",
+                name: "Pawna River",
+                area: "Panvel",
+                description: "River flowing through scenic valleys perfect for water and landscape photography.",
+                bestTime: "Morning, Sunset",
+                difficulty: "Easy",
+                type: "Water, Landscape",
+                distanceFromCenter: "60 km",
+                parking: "Available",
+                icon: "🌊",
+                image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=500&h=300&fit=crop"
+            },
+            {
+                id: 19,
+                city: "panvel",
+                name: "Nerul Coastal Road",
+                area: "Panvel",
+                description: "Modern infrastructure with sea views offering urban and sunset photography opportunities.",
+                bestTime: "Evening",
+                difficulty: "Easy",
+                type: "Urban, Landscape",
+                distanceFromCenter: "40 km",
+                parking: "Available",
+                icon: "🌉",
+                image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=500&h=300&fit=crop"
+            },
+
+            // Pune Spots
+            {
+                id: 20,
+                city: "pune",
+                name: "Osho Samadhi",
+                area: "Koregaon Park",
+                description: "Spiritual and architectural marvel with serene gardens perfect for meditation photography.",
+                bestTime: "Early Morning",
+                difficulty: "Easy",
+                type: "Architecture, Spiritual",
+                distanceFromCenter: "5 km",
+                parking: "Available",
+                icon: "🧘",
+                image: "https://images.unsplash.com/photo-1548013146-72f92f20d066?w=500&h=300&fit=crop"
+            },
+            {
+                id: 21,
+                city: "pune",
+                name: "Pataleshwar Cave Temple",
+                area: "Pune City",
+                description: "Ancient cave temple with intricate carvings ideal for architectural and historical photography.",
+                bestTime: "Morning",
+                difficulty: "Easy",
+                type: "Architecture, Heritage",
+                distanceFromCenter: "3 km",
+                parking: "Limited",
+                icon: "⛩️",
+                image: "https://images.unsplash.com/photo-1548013146-72f92f20d066?w=500&h=300&fit=crop"
+            },
+            {
+                id: 22,
+                city: "pune",
+                name: "Mula-Mutha River",
+                area: "Pune",
+                description: "Urban river with scenic bridges and evening atmosphere ideal for urban landscape.",
+                bestTime: "Sunset",
+                difficulty: "Easy",
+                type: "Urban, Water",
+                distanceFromCenter: "2 km",
+                parking: "Available",
+                icon: "🌉",
+                image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=500&h=300&fit=crop"
+            },
+            {
+                id: 23,
+                city: "pune",
+                name: "Sinhagad Fort",
+                area: "Pune",
+                description: "Historic fort with panoramic views perfect for trekking and landscape photography.",
+                bestTime: "Sunrise, Sunset",
+                difficulty: "Hard",
+                type: "Adventure, Landscape",
+                distanceFromCenter: "30 km",
+                parking: "Available",
+                icon: "🏰",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 24,
+                city: "pune",
+                name: "Shaniwar Wada",
+                area: "Pune City",
+                description: "Historic palace with architectural grandeur perfect for heritage and night photography.",
+                bestTime: "Evening",
+                difficulty: "Easy",
+                type: "Architecture, Heritage",
+                distanceFromCenter: "2 km",
+                parking: "Limited",
+                icon: "🏯",
+                image: "https://images.unsplash.com/photo-1549887534-7c9934fc8e5a?w=500&h=300&fit=crop"
+            },
+            {
+                id: 25,
+                city: "pune",
+                name: "Rajgad Fort",
+                area: "Pune",
+                description: "Remote hilltop fort with breathtaking views ideal for adventure and landscape photography.",
+                bestTime: "Sunrise",
+                difficulty: "Hard",
+                type: "Adventure, Landscape",
+                distanceFromCenter: "50 km",
+                parking: "Limited",
+                icon: "🗻",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 26,
+                city: "pune",
+                name: "Vetal Hill",
+                area: "Pune",
+                description: "Rocky hilltop with scenic overlook perfect for sunset and portrait photography.",
+                bestTime: "Sunset",
+                difficulty: "Medium",
+                type: "Landscape, Portrait",
+                distanceFromCenter: "15 km",
+                parking: "Available",
+                icon: "🌄",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop"
+            },
+            {
+                id: 27,
+                city: "pune",
+                name: "Bund Garden",
+                area: "Pune",
+                description: "Beautiful botanical garden with colorful flowers ideal for nature and macro photography.",
+                bestTime: "Morning",
+                difficulty: "Easy",
+                type: "Nature, Macro",
+                distanceFromCenter: "1 km",
+                parking: "Available",
+                icon: "🌸",
+                image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=300&fit=crop"
+            }
+        ];
+
+        // Google API key passed from Flask (empty string if not set)
+        const googleApiKey = '{{ google_api_key }}';
+
+        // Ensure each spot has a photo_reference field (can be filled later)
+        photographySpots.forEach(s => { if (!('photo_reference' in s)) s.photo_reference = ''; });
+
+        let currentCity = 'mumbai';
+
+        // Render places
+        function renderPlaces(city = 'mumbai', searchTerm = '') {
+            const grid = document.getElementById('places-grid');
+            grid.innerHTML = '';
+
+            let spots = photographySpots.filter(spot => spot.city === city);
+
+            if (searchTerm) {
+                spots = spots.filter(spot => 
+                    spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    spot.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    spot.type.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            if (spots.length === 0) {
+                grid.innerHTML = '<div class="no-results" style="grid-column: 1/-1;">No photography spots found. Try a different search!</div>';
+                return;
+            }
+
+            spots.forEach(spot => {
+                const card = document.createElement('div');
+                card.className = 'place-card active';
+
+                // Prefer explicit `spot.image`; otherwise use Unsplash Source (free, no API key)
+                let imgSrc = '';
+                if (spot.image) {
+                    imgSrc = spot.image;
+                } else {
+                    // Build a keyword query using place name and area to get a relevant image
+                    const query = encodeURIComponent(`${spot.name}, ${spot.area}, photography`);
+                    imgSrc = `https://source.unsplash.com/800x600/?${query}`;
+                }
+
+                card.innerHTML = `
+                    <div class="place-image">
+                        <img src="${imgSrc}" alt="${spot.name}" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop'">
+                        <div class="place-image-overlay">${spot.icon}</div>
+                    </div>
+                    <div class="place-content">
+                        <div class="place-title">${spot.name}</div>
+                        <div class="place-city"><i class="fas fa-map-marker"></i> ${spot.area}</div>
+                        <div class="place-description">${spot.description}</div>
+                        <div class="place-details">
+                            <div class="detail-item">
+                                <div class="detail-label"><i class="fas fa-clock"></i> Best Time</div>
+                                <div class="detail-value">${spot.bestTime}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label"><i class="fas fa-signal"></i> Difficulty</div>
+                                <div class="detail-value">${spot.difficulty}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label"><i class="fas fa-location-dot"></i> Distance</div>
+                                <div class="detail-value">${spot.distanceFromCenter}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label"><i class="fas fa-parking"></i> Parking</div>
+                                <div class="detail-value">${spot.parking}</div>
+                            </div>
+                        </div>
+                        <div class="place-tags">
+                            ${spot.type.split(', ').map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // City tab switching
+        document.querySelectorAll('.city-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.city-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentCity = tab.dataset.city;
+                renderPlaces(currentCity);
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-places').addEventListener('input', (e) => {
+            renderPlaces(currentCity, e.target.value);
+        });
+
+        // Initial render
+        renderPlaces('mumbai');
+    </script>
+</body>
+</html>

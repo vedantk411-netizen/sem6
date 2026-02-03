@@ -216,6 +216,21 @@ def chatbot_page():
         return redirect(url_for('home'))
     return render_template('chatbot.html')
 
+@app.route('/rental')
+def rental_page():
+    """Display camera rental shops in Mumbai"""
+    is_logged_in = 'user_id' in session or 'admin_logged_in' in session
+    return render_template('rental.html', is_logged_in=is_logged_in)
+
+@app.route('/best-places')
+def best_places_page():
+    """Display best outdoor photography spots"""
+    is_logged_in = 'user_id' in session or 'admin_logged_in' in session
+    # Pass Google API key from environment (if set) so the template can build
+    # Place Photo URLs. If not set, the template will fall back to bundled images.
+    google_api_key = os.getenv('GOOGLE_API_KEY', '')
+    return render_template('best_places.html', is_logged_in=is_logged_in, google_api_key=google_api_key)
+
 @app.route('/api/analyze-scene', methods=['POST'])
 def analyze_scene():
     """Store analyzed scene photo in user profile and MongoDB"""

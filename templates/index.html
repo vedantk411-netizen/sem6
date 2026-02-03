@@ -15,6 +15,12 @@
     <nav class="navbar">
         <div class="nav-logo"><i class="fas fa-camera"></i> ITS_CAPTURED</div>
         <div>
+            <a href="/best-places" class="nav-btn" style="margin-right: 10px; display: inline-block;">
+                <i class="fas fa-map"></i> Best Places
+            </a>
+            <a href="/rental" class="nav-btn" style="margin-right: 10px; display: inline-block;">
+                <i class="fas fa-shop"></i> Rentals
+            </a>
             <a href="/chatbot" class="nav-btn" style="margin-right: 10px; display: inline-block;">
                 <i class="fas fa-robot"></i> AI Chat
             </a>
@@ -115,8 +121,16 @@
                             <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Wedding"> 💍 Wedding</label>
                             <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Portrait"> 👤 Portrait</label>
                             <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Event"> 🎉 Event</label>
-                            <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Outdoor"> 🌲 Outdoor</label>
                             <label style="display: flex; align-items: center; font-weight: 400; cursor: pointer;"><input type="checkbox" name="specialization" value="Product"> 📦 Product</label>
+
+                            <!-- Themed Indoor / Outdoor toggles -->
+                            <div class="env-toggle-group" style="margin-left: 6px;">
+                                <input type="checkbox" id="spec-indoor" name="specialization" value="Indoor">
+                                <label for="spec-indoor" class="env-toggle-label"><i class="fas fa-home"></i> Indoor</label>
+
+                                <input type="checkbox" id="spec-outdoor" name="specialization" value="Outdoor">
+                                <label for="spec-outdoor" class="env-toggle-label"><i class="fas fa-tree"></i> Outdoor</label>
+                            </div>
                         </div>
                     </div>
 
